@@ -24,20 +24,25 @@ import java.util.List;
 @RequestMapping("/users")
 public class Users {
 
+    //Inject MongoTemplate to handle complex filters of User
     @Autowired
     MongoTemplate mongoTemplate;
 
+    //Inject UserRepo to handle basic filters of User
     @Autowired
     UserRepo userRepo;
 
+    //Inject Bcrypt to encrypt new User password
     @Autowired
     private PasswordEncoder bcrypt;
 
+    //Get All Users
     @GetMapping()
     public List<User> getUsersList(){
         return userRepo.findAll();
     }
 
+    //Check if token is authenticated then return UserDetails
     @ResponseBody @PutMapping("/authenticate")
     public ResUser getUserAuth(HttpServletRequest request){
         String authorizationHeader = request.getHeader("access_token");
@@ -54,11 +59,13 @@ public class Users {
         }
     }
 
+    //Logout user in backend then send the loggedIn=false to frontend to delete token and global state
     @ResponseBody @PostMapping("/logout")
     public ResUser userLogout(){
         return new ResUser(null,false);
     }
 
+    //Create new User
     @ResponseBody @PostMapping("/signup")
     public Object userSignUp(@RequestBody User req){
         User findUser = userRepo.findWithUsername(req.getUsername());
@@ -71,6 +78,7 @@ public class Users {
         }
     }
 
+    //Update User Infomation
     @ResponseBody @PostMapping("/update/{id}")
     public ResMessage updateUser(@PathVariable String id,@RequestBody User req){
         req.setId(id);
@@ -82,6 +90,7 @@ public class Users {
         }
     }
 
+    //Upload User Image
     @ResponseBody @PostMapping("/upload/{id}")
     public ResMessage uploadImg(@PathVariable String id,@RequestBody User req){
         Query query = new Query();
@@ -98,6 +107,8 @@ public class Users {
 
     //CART
 
+
+    //Add new Product to User Cart
     @ResponseBody @PostMapping("/addcart/{id}")
     public ResMessage updateCart(@PathVariable String id,@RequestBody PurchaseProduct req){
         Query query = new Query();
@@ -113,6 +124,7 @@ public class Users {
         }
     }
 
+    //Remove specific product from User Cart
     @ResponseBody @PostMapping("/removecart/{id}")
     public ResMessage removeCart(@PathVariable String id, @RequestBody UpdateCart req){
         User findUser = userRepo.findWithUserId(id);
@@ -128,6 +140,7 @@ public class Users {
         }
     }
 
+    //Clear all Products in User Cart
     @ResponseBody @PostMapping("/clearcart/{id}")
     public ResMessage clearCart(@PathVariable String id){
         Query query = new Query();
@@ -144,6 +157,7 @@ public class Users {
         }
     }
 
+    //Update the quantity of Product in User Cart
     @ResponseBody @PostMapping("/updatequantity/{id}")
     public ResMessage updateQuantity(@PathVariable String id,@RequestBody PurchaseProduct req ){
         Query query = new Query();

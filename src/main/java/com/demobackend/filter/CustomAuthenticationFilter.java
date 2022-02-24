@@ -3,19 +3,12 @@ package com.demobackend.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.demobackend.database.model.MyUserPrinciple;
-import com.demobackend.database.model.UserLogin;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -27,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -39,11 +31,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         this.authenticationManager = authenticationManager;
     }
 
-
-
-    @Autowired
-    private PasswordEncoder bcrypt =new BCryptPasswordEncoder(10);
-
+    //Override attemptAuthentication to get UserDetails then authenticate user
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = request.getParameter("username");
@@ -53,18 +41,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         SecurityContextHolder.getContext().setAuthentication(auth);
         return auth;
 
-//        try{
-//
-//            UserLogin authenticateRequest = new ObjectMapper().readValue(request.getInputStream(), UserLogin.class);
-//            System.out.println(authenticateRequest.getUsername());
-//            System.out.println(authenticateRequest.getPassword());
-//            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(authenticateRequest.getUsername(),authenticateRequest.getPassword(),new ArrayList<>());
-//            return authenticationManager.authenticate(authentication);
-//       } catch(IOException e){
-//            throw new RuntimeException(e);
-//        }
     }
 
+    //Generate new token when Authentication is successful
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         MyUserPrinciple user = (MyUserPrinciple) attemptAuthentication(request,response).getPrincipal();
@@ -79,6 +58,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         new ObjectMapper().writeValue(response.getOutputStream(),token);
     }
 
+    //Logging error when Authentication is failed
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         System.out.println("unauthenticated" + failed.toString());

@@ -11,6 +11,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/products")
 public class Products {
+
+    //Inject Product Repo
     @Autowired
     ProductRepo product;
 

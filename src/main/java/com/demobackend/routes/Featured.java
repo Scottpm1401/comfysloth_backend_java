@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/featured")
 public class Featured {
 
+    //Inject MongoTemplate
     @Autowired
     MongoTemplate mongoTemplate;
 
+    //Use MongoTemplate instead of single Query (productRepo) to get multiple filters of Products List
     @ResponseBody @GetMapping()
     public Object getFeatureProduct(){
         Query query = new Query();

@@ -32,6 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final MyUserDetailsService myUserDetailsService;
 
 
+
     @Bean
     public PasswordEncoder passwordEncoder()
     {
@@ -39,12 +40,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
+    //config to bypass authenticate some URLS
     @Override
     public void configure(WebSecurity web) throws Exception{
         web.ignoring().antMatchers(GET,"/products/**","/featured/**");
         web.ignoring().antMatchers(POST,"/users/signup/**)");
     }
 
+    //Config Spring Security
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
@@ -54,11 +57,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(new CustomAuthorizationFilter(userRepo), UsernamePasswordAuthenticationFilter.class);
     }
 
+    //Setting Provider for AuthenticationManagerBuilder
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception{
         auth.authenticationProvider(authenticationProvider());
     }
 
+    //Config AuthenticationManagerBuilder Provider
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -67,6 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return authProvider;
     }
 
+    //Override authenticationManagerBean to expose the AuthenticationManager built
     @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {

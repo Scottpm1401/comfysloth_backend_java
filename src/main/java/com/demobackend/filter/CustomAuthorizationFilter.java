@@ -22,11 +22,15 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
-    private UserRepo userRepo;
 
+    //Inject UserRepo
+    private UserRepo userRepo;
     public CustomAuthorizationFilter(UserRepo userRepo){
         this.userRepo = userRepo;
     }
+
+
+    //Config CustomAuthorizationFilter to authenticate token of any request to server
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (request.getServletPath().equals("/login")){
