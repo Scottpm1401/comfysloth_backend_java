@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.demobackend.database.model.*;
 import com.demobackend.database.repository.UserRepo;
 import com.mongodb.client.result.UpdateResult;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -36,6 +37,17 @@ public class Users {
     @Autowired
     private PasswordEncoder bcrypt;
 
+
+    //Decrypt JWT
+    private String decryptJWT(HttpServletRequest request){
+        String authorizationHeader = request.getHeader("access_token");
+        String token = authorizationHeader.substring("Bearer ".length());
+        Algorithm algorithm = Algorithm.HMAC256("secret");
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        return decodedJWT.getSubject();
+    }
+
     //Get All Users
     @GetMapping()
     public List<User> getUsersList(){
@@ -45,12 +57,7 @@ public class Users {
     //Check if token is authenticated then return UserDetails
     @ResponseBody @PutMapping("/authenticate")
     public ResUser getUserAuth(HttpServletRequest request){
-        String authorizationHeader = request.getHeader("access_token");
-        String token = authorizationHeader.substring("Bearer ".length());
-        Algorithm algorithm = Algorithm.HMAC256("secret");
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decodedJWT = verifier.verify(token);
-        String username = decodedJWT.getSubject();
+        String username = this.decryptJWT(request);
         User user = userRepo.findWithUsername(username);
         if (user!=null){
             return new ResUser(user,true);
@@ -68,6 +75,8 @@ public class Users {
     //Create new User
     @ResponseBody @PostMapping("/signup")
     public Object userSignUp(@RequestBody User req){
+        //set default image
+        req.setImg("https://i.ibb.co/wJGwHYW/default-user-avatar.jpg");
         User findUser = userRepo.findWithUsername(req.getUsername());
         if(findUser!=null){
             return new ResMessage("Email or Username already existed");
@@ -129,7 +138,7 @@ public class Users {
     public ResMessage removeCart(@PathVariable String id, @RequestBody UpdateCart req){
         User findUser = userRepo.findWithUserId(id);
         List<PurchaseProduct> cart = findUser.getCart();
-        cart.removeIf(item -> item.get_id().equals(req.get_id()) && item.getColor().equals(req.getColor()));
+        cart.removeIf(item -> item.getId().equals(req.getId()) && item.getColor().equals(req.getColor()));
         findUser.setCart_total(findUser.getCart_total() - req.getPrices());
         findUser.setCart(cart);
         User result=userRepo.save(findUser);
@@ -161,10 +170,10 @@ public class Users {
     @ResponseBody @PostMapping("/updatequantity/{id}")
     public ResMessage updateQuantity(@PathVariable String id,@RequestBody PurchaseProduct req ){
         Query query = new Query();
-        query.addCriteria(Criteria.where("id").is(id).and("cart._id").is(req.get_id()).and("cart.color").is(req.getColor()));
+        query.addCriteria(Criteria.where("id").is(id).and("cart._id").is(new ObjectId(req.getId())).and("cart.color").is(req.getColor()));
         Update update = new Update();
-        update.inc("cart.quantity",req.getQuantity());
-        update.inc("cart_total",req.getPrice());
+        update.inc("cart.$.quantity",req.getQuantity());
+        update.inc("cart_total",req.getPrice() * req.getQuantity());
         UpdateResult result = mongoTemplate.updateFirst(query,update,User.class);
         if (result.wasAcknowledged()){
             return new ResMessage("Your cart has been updated");

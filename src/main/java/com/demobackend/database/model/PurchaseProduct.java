@@ -1,15 +1,15 @@
 package com.demobackend.database.model;
 
 public class PurchaseProduct {
-    private String _id;
+    private String id;
     private String img;
     private String title;
     private Double price;
     private String color;
     private Integer quantity;
 
-    public String get_id() {
-        return _id;
+    public String getId() {
+        return id;
     }
 
     public String getImg() {
@@ -32,8 +32,8 @@ public class PurchaseProduct {
         return quantity;
     }
 
-    public PurchaseProduct(String _id, String img, String title, Double price, String color, Integer quantity) {
-        this._id = _id;
+    public PurchaseProduct(String id, String img, String title, Double price, String color, Integer quantity) {
+        this.id = id;
         this.img = img;
         this.title = title;
         this.price = price;
@@ -41,8 +41,8 @@ public class PurchaseProduct {
         this.quantity = quantity;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setImg(String img) {

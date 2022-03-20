@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception{
         web.ignoring().antMatchers(GET,"/products/**","/featured/**");
-        web.ignoring().antMatchers(POST,"/users/signup/**)");
+        web.ignoring().antMatchers(POST,"/users/signup/*","/users/signup/**");
     }
 
     //Config Spring Security
