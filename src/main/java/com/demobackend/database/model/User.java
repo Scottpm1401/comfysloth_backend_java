@@ -20,6 +20,7 @@ public class User {
     private String phone;
 
     private Boolean admin;
+    private String birthday;
     private String name;
     private String email;
     private String password;
@@ -28,11 +29,12 @@ public class User {
     private String state;
     private Integer __v;
 
-    public User(String id,String username, String img, String address, String sex, String payment, List<PurchaseProduct> cart, Double cart_total, String phone, Boolean admin, String name, String email, String password, List<Purchase> purchase, String city, String state, Integer __v) {
+    public User(String id,String username, String img,String birthday, String address, String sex, String payment, List<PurchaseProduct> cart, Double cart_total, String phone, Boolean admin, String name, String email, String password, List<Purchase> purchase, String city, String state, Integer __v) {
         this.id = id;
         this.username = username;
         this.img = img;
         this.address = address;
+        this.birthday=birthday;
         this.sex = sex;
         this.payment = payment;
         this.cart = cart;
@@ -78,6 +80,14 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
     }
 
     public String getSex() {
