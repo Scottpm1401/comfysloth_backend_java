@@ -90,9 +90,19 @@ public class Users {
     //Update User Infomation
     @ResponseBody @PostMapping("/update/{id}")
     public ResMessage updateUser(@PathVariable String id,@RequestBody User req){
-        req.setId(id);
-        User result = userRepo.save(req);
-        if (result!=null) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        Update update = new Update();
+        update.set("name",req.getName());
+        update.set("birthday",req.getBirthday());
+        update.set("sex",req.getSex());
+        update.set("email",req.getEmail());
+        update.set("phone",req.getPhone());
+        update.set("address",req.getAddress());
+        update.set("state",req.getState());
+        update.set("city",req.getCity());
+        UpdateResult result = mongoTemplate.updateFirst(query,update,User.class);
+        if (result.wasAcknowledged()) {
             return new ResMessage("Your profile has been updated");
         } else{
             return new ResMessage("Failed to updated your profile");
